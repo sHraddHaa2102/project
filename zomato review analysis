@@ -1,0 +1,42 @@
+import pandas as pd
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+
+# Sample Zomato review data (you can replace this with your own data)
+data = {
+    'Review': [
+        "The food was excellent! Highly recommended.",
+        "Service was terrible, and the food was cold.",
+        "Average experience at this restaurant.",
+        "I love this place. The staff is so friendly.",
+    ]
+}
+
+df = pd.DataFrame(data)
+
+# Function to perform sentiment analysis using TextBlob
+def analyze_sentiment(review):
+    analysis = TextBlob(review)
+    # Classify sentiment as positive, negative, or neutral
+    if analysis.sentiment.polarity > 0:
+        return 'Positive'
+    elif analysis.sentiment.polarity < 0:
+        return 'Negative'
+    else:
+        return 'Neutral'
+
+# Apply sentiment analysis to each review
+df['Sentiment'] = df['Review'].apply(analyze_sentiment)
+
+# Count the number of positive, negative, and neutral reviews
+sentiment_counts = df['Sentiment'].value_counts()
+
+# Plot a bar chart to visualize sentiment distribution
+sentiment_counts.plot(kind='bar', title='Sentiment Analysis')
+plt.xlabel('Sentiment')
+plt.ylabel('Count')
+plt.show()
+
+# Display the analyzed reviews
+print("Zomato Review Analysis:")
+print(df)
