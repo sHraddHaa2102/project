@@ -1,0 +1,91 @@
+pip install pygame
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 300
+GROUND_HEIGHT = 50
+DINO_WIDTH = 44
+DINO_HEIGHT = 47
+CACTUS_WIDTH = 20
+CACTUS_HEIGHT = 50
+BIRD_WIDTH = 34
+BIRD_HEIGHT = 24
+FONT = pygame.font.Font(None, 36)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Initialize the screen
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Dinosaur Game")
+
+# Load images
+dino_img = pygame.image.load("dino.png")
+cactus_img = pygame.image.load("cactus.png")
+bird_img = pygame.image.load("bird.png")
+
+# Game variables
+dino_x = 50
+dino_y = SCREEN_HEIGHT - GROUND_HEIGHT - DINO_HEIGHT
+dino_y_change = 0
+cactus_x = SCREEN_WIDTH
+cactus_y = SCREEN_HEIGHT - GROUND_HEIGHT - CACTUS_HEIGHT
+bird_x = SCREEN_WIDTH
+bird_y = SCREEN_HEIGHT - GROUND_HEIGHT - BIRD_HEIGHT
+bird_y_change = 0
+is_jumping = False
+score = 0
+
+# Game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not is_jumping:
+                is_jumping = True
+                dino_y_change = -7
+
+    # Dinosaur jump physics
+    if is_jumping:
+        dino_y += dino_y_change
+        dino_y_change += 0.5
+        if dino_y >= SCREEN_HEIGHT - GROUND_HEIGHT - DINO_HEIGHT:
+            dino_y = SCREEN_HEIGHT - GROUND_HEIGHT - DINO_HEIGHT
+            is_jumping = False
+
+    # Update cactus and bird positions
+    cactus_x -= 5
+    bird_x -= 5
+
+    if cactus_x < -CACTUS_WIDTH:
+        cactus_x = SCREEN_WIDTH
+    if bird_x < -BIRD_WIDTH:
+        bird_x = SCREEN_WIDTH
+
+    # Collision detection
+    if dino_x + DINO_WIDTH > cactus_x and dino_x < cactus_x + CACTUS_WIDTH:
+        if dino_y + DINO_HEIGHT > cactus_y:
+            running = False
+    if dino_x + DINO_WIDTH > bird_x and dino_x < bird_x + BIRD_WIDTH:
+        if dino_y + DINO_HEIGHT > bird_y:
+            running = False
+
+    # Draw everything
+    screen.fill(WHITE)
+    pygame.draw.rect(screen, BLACK, (0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT))
+    screen.blit(dino_img, (dino_x, dino_y))
+    screen.blit(cactus_img, (cactus_x, cactus_y))
+    screen.blit(bird_img, (bird_x, bird_y))
+    score_text = FONT.render(f"Score: {score}", True, BLACK)
+    screen.blit(score_text, (10, 10))
+    pygame.display.update()
+
+    score += 1
+
+pygame.quit()
