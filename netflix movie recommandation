@@ -1,0 +1,60 @@
+pip install scikit-surprise
+import os
+from surprise import Dataset, Reader
+from surprise import SVD
+from surprise.model_selection import train_test_split
+from surprise import accuracy
+
+# Define the path to your dataset file (CSV format)
+data_file_path = 'ratings.csv'
+
+# Define a custom reader for your dataset
+reader = Reader(line_format='user item rating timestamp', sep=',')
+
+# Load the dataset
+data = Dataset.load_from_file(data_file_path, reader=reader)
+
+# Split the dataset into training and testing sets
+trainset, testset = train_test_split(data, test_size=0.25)
+
+# Initialize the SVD (Singular Value Decomposition) algorithm
+algorithm = SVD()
+
+# Train the algorithm on the training data
+algorithm.fit(trainset)
+
+# Make predictions on the test data
+predictions = algorithm.test(testset)
+
+# Evaluate the model's performance
+rmse = accuracy.rmse(predictions)
+mae = accuracy.mae(predictions)
+
+print(f'RMSE: {rmse}')
+print(f'MAE: {mae}')
+
+# Recommend movies for a specific user
+user_id = '1'
+user_movies = [str(movie) for movie in range(1, 1000)]  # Assume movie IDs from 1 to 999
+user_ratings = [5.0] * len(user_movies)  # Assuming the user rated all these movies 5.0
+
+# Create a custom dataset for the user
+custom_data = Dataset.load_from_df(
+    pd.DataFrame({'userID': [user_id] * len(user_movies), 'itemID': user_movies, 'rating': user_ratings}),
+    reader
+)
+
+# Build a trainset from the custom dataset
+custom_trainset = custom_data.build_full_trainset()
+
+# Make recommendations for the user
+user_recommendations = algorithm.test(custom_trainset.build_testset())
+
+# Sort the recommendations by predicted rating
+user_recommendations.sort(key=lambda x: x.est, reverse=True)
+
+# Print the top N movie recommendations
+top_n = 10
+print(f"Top {top_n} movie recommendations for user {user_id}:")
+for i, recommendation in enumerate(user_recommendations[:top_n]):
+    print(f"{i + 1}: Movie ID {recommendation.iid}, Predicted Rating: {recommendation.est}")
