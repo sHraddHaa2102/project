@@ -1,0 +1,18 @@
+SELECT song_name, artist
+FROM top_songs
+ORDER BY popularity DESC
+LIMIT 1;
+SELECT AVG(popularity) AS average_popularity
+FROM top_songs;
+SELECT artist, COUNT(*) as song_count
+FROM top_songs
+GROUP BY artist
+ORDER BY song_count DESC;
+SELECT MIN(release_date) AS oldest_song, MAX(release_date) AS newest_song
+FROM top_songs;
+SELECT AVG(duration_ms / 60000) AS avg_duration_minutes
+FROM top_songs;
+SELECT song_name, artist, popularity
+FROM top_songs
+ORDER BY popularity DESC
+LIMIT N;
